@@ -933,13 +933,19 @@ class file_management:
     -load_session
     """
     
-    def __init__(self, current_dir):
+    def __init__(self, filedir, current_globals, current_dir):
         """
         Parameters
         ----------
-        current_dir : str
-            Current directory to save/load files.
+        filedir: str
+            The directory of the save folder
+        current_dir : list
+            Current dir() of the script.
+        current_globals : dict
+            Current globals() of the script.
         """
+        self.filedir = filedir
+        self.current_globals = current_globals
         self.current_dir = current_dir
         
     
@@ -956,13 +962,14 @@ class file_management:
         -------
         None.
         """
-        savename = self.current_dir + '\\' + filename + '.out'
+        savename = self.filedir + '\\' + filename + '.out'
         my_shelf = shelve.open(savename,'n') # 'n' for new
 
-        for key in dir():
+        for key in self.current_dir:
             try:
-                my_shelf[key] = globals()[key]
-            except TypeError:
+                my_shelf[key] = self.current_globals[key]
+            
+            except:
                 #
                 # __builtins__, my_shelf, and imported modules can not be shelved.
                 #
@@ -985,9 +992,9 @@ class file_management:
         -------
         None.
         """
-        loadname = self.current_dir + '\\' + filename + '.out'
+        loadname = self.filedir + '\\' + filename + '.out'
         my_shelf = shelve.open(loadname)
         for key in my_shelf:
-            globals()[key]=my_shelf[key]
+            self.current_globals[key]=my_shelf[key]
         print('Previous session %s is loaded!' %(filename))
         my_shelf.close()

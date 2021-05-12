@@ -142,7 +142,11 @@ for cidx, contrast in enumerate(contrasts):
 #average firing rate
 SAMfr = np.mean(np.mean(SAMfrs, axis=0), axis=-1)
 
-    
+#save session
+directory = r'D:\ALPEREN\Tübingen NB\Semester 4\Thesis\git\codes\data'
+flm = hlp.file_management(directory, globals(), dir())
+flm.save_file('SAM_RAM_noisy_simul_12.05')
+
 
 #plottings
 #general parameters.
