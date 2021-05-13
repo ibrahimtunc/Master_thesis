@@ -10,6 +10,7 @@ import numpy as np
 import wef_helper_functions as hlp
 import time 
 import sys
+import datetime
 
 #Noisy version of the reduced LIF model
 
@@ -145,7 +146,7 @@ SAMfr = np.mean(np.mean(SAMfrs, axis=0), axis=-1)
 #save session
 directory = r'D:\ALPEREN\Tübingen NB\Semester 4\Thesis\git\codes\data'
 flm = hlp.file_management(directory, globals(), dir())
-flm.save_file('SAM_RAM_noisy_simul_12.05')
+flm.save_file('SAM_RAM_noisy_simul_%s' %(datetime.date.today()))
 
 
 #plottings
@@ -167,23 +168,23 @@ RAMplots = hlp.plotter.stimulus_response_plots(nrows, ncols, subplots_adjust,
 
 #1.1 Response power
 fig = RAMplots.pr_plotter(RAMpr)
-fig.suptitle('Response powers for RAM stimulus at different contrasts')
+fig.suptitle('Response powers for RAM stimulus at different contrasts (noise %.2f)' %(noise_strength))
 
 #1.2 csd 
 fig = RAMplots.csd_plotter(RAMprs)
-fig.suptitle('RAM absolute cross spectral density at different contrasts')
+fig.suptitle('RAM absolute cross spectral density at different contrasts (noise %.2f)' %(noise_strength))
 
 #1.3 Transfer functions for different contrasts
 fig = RAMplots.transfer_func_plotter(RAMtfs)
-fig.suptitle('RAM stimulus transfer functions for different contrasts')
+fig.suptitle('RAM stimulus transfer functions for different contrasts (noise %.2f)' %(noise_strength))
 
 #1.4 s-r coherence
 fig = RAMplots.s_r_coherence_plotter(RAMcoh)
-fig.suptitle('RAM stimulus-response coherences for different contrasts')
+fig.suptitle('RAM stimulus-response coherences for different contrasts (noise %.2f)' %(noise_strength))
 
 #1.5 Response powers as a function of contrast for different frequencies MOVE TO HLP
 fig = RAMplots.pr_freq_plotter(RAMpr)
-fig.suptitle('RAM stimulus response powers for different frequencies')
+fig.suptitle('RAM stimulus response powers for different frequencies (noise %.2f)' %(noise_strength))
 plt.pause(0.5)
 plt.tight_layout()
 
@@ -195,23 +196,23 @@ SAMplots = hlp.plotter.stimulus_response_plots(nrows, ncols, subplots_adjust,
 
 #2.1 Response power
 fig = SAMplots.pr_plotter(np.mean(SAMpr, axis=0))
-fig.suptitle('Response powers for SAM stimulus at different contrasts')
+fig.suptitle('Response powers for SAM stimulus at different contrasts (noise %.2f)' %(noise_strength))
 
 #2.2 csd
 fig = SAMplots.csd_plotter(np.mean(SAMprs, axis=0))
-fig.suptitle('SAM absolute cross spectral density at different contrasts')
+fig.suptitle('SAM absolute cross spectral density at different contrasts (noise %.2f)' %(noise_strength))
 
 #2.3 transfer function
 fig = SAMplots.transfer_func_plotter(SAMtfs)
-fig.suptitle('SAM stimulus transfer functions for different contrasts')
+fig.suptitle('SAM stimulus transfer functions for different contrasts (noise %.2f)' %(noise_strength))
 
 #2.4 s-r coherence
 fig = SAMplots.s_r_coherence_plotter(SAMcoh)
-fig.suptitle('SAM stimulus-response coherences for different contrasts')
+fig.suptitle('SAM stimulus-response coherences for different contrasts (noise %.2f)' %(noise_strength))
 
 #2.5 Response powers as a function of contrast for different frequencies
 fig = SAMplots.pr_freq_plotter(np.mean(SAMpr, axis=0))
-fig.suptitle('SAM stimulus response powers for different frequencies')
+fig.suptitle('SAM stimulus response powers for different frequencies (noise %.2f)' %(noise_strength))
 plt.pause(0.5)
 plt.tight_layout()
 

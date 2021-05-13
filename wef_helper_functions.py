@@ -16,6 +16,7 @@ except ImportError:
             return func
         return decorator_jit
 from matplotlib import colors as cl
+import matplotlib.ticker as ticker
 import shelve
 
 
@@ -514,7 +515,7 @@ class plotter:
         -s_r_coherence_plotter
         -pr_freq_plotter
     
-    1) fr_spkpercyc: Plots dealing with average firing rate and number of spikes per cycle for a given sine wave
+    2) fr_spkpercyc: Plots dealing with average firing rate and number of spikes per cycle for a given sine wave
         
         Functions
         ----------
@@ -523,6 +524,11 @@ class plotter:
         -fr_f_subplots_for_contrasts
         -avgspk_contrast_subplots_for_f
         -avgspk_f_subplots_for_contrasts
+    
+    3) misc: Remaining plots which deal with specific things and/or are not categorically classified.
+        Functions
+        ---------
+        -plot_cv_bfr
     """
     
     
@@ -564,6 +570,7 @@ class plotter:
             self.sadj = sadj
             self.frange = frange
             self.bfr = bfr
+            self.sfr = sfr
             self.contrasts = contrasts
             self.xticks = [0, np.round(np.ceil(np.max(self.frange)),-1)]
             if SAM == True:
@@ -588,8 +595,8 @@ class plotter:
             """
             
             fig, axs = plt.subplots(self.nrows, self.ncols, sharex=True, sharey='row')
-            axs[np.int(self.nrow//2), 0].set_ylabel('Power ' r'[$\frac{Hz^2}{Hz}$]') #!these labels are adapted for 5x5 subplot.
-            axs[-1, np.int(self.ncol//2)].set_xlabel('Frequency [Hz]')
+            axs[np.int(self.nrows//2), 0].set_ylabel('Power ' r'[$\frac{Hz^2}{Hz}$]') #!these labels are adapted for 5x5 subplot.
+            axs[-1, np.int(self.ncols//2)].set_xlabel('Frequency [Hz]')
             axs = axs.flatten()
             skipidx = len(self.contrasts) // len(axs)
             for pidx, ax in enumerate(axs):
@@ -621,8 +628,8 @@ class plotter:
             """
             
             fig, axs = plt.subplots(self.nrows, self.ncols, sharex=True, sharey='row')
-            axs[np.int(self.nrow//2), 0].set_ylabel('Power ' r'[$\frac{Hz^2}{Hz}$]') #adjusted for any subplot size
-            axs[-1, np.int(self.ncol//2)].set_xlabel('Frequency [Hz]')
+            axs[np.int(self.nrows//2), 0].set_ylabel('Power ' r'[$\frac{Hz^2}{Hz}$]') #adjusted for any subplot size
+            axs[-1, np.int(self.ncols//2)].set_xlabel('Frequency [Hz]')
             axs = axs.flatten()
             skipidx = len(self.contrasts) // len(axs)
 
@@ -656,8 +663,8 @@ class plotter:
             """
             
             fig, axs = plt.subplots(self.nrows, self.ncols, sharex=True, sharey='row')
-            axs[np.int(self.nrow//2), 0].set_ylabel('Gain ' r'[$\frac{Hz}{mV}$]')
-            axs[-1, np.int(self.ncol//2)].set_xlabel('Frequency [Hz]')
+            axs[np.int(self.nrows//2), 0].set_ylabel('Gain ' r'[$\frac{Hz}{mV}$]')
+            axs[-1, np.int(self.ncols//2)].set_xlabel('Frequency [Hz]')
             axs = axs.flatten()
             skipidx = len(self.contrasts) // len(axs)
 
@@ -691,8 +698,8 @@ class plotter:
             """
             
             fig, axs = plt.subplots(self.nrows, self.ncols, sharex=True, sharey='row')
-            axs[np.int(self.nrow//2), 0].set_ylabel(r'$\gamma^2_{SR}$') #adjusted for any size
-            axs[-1, np.int(self.ncol//2)].set_xlabel('Frequency [Hz]')
+            axs[np.int(self.nrows//2), 0].set_ylabel(r'$\gamma^2_{SR}$') #adjusted for any size
+            axs[-1, np.int(self.ncols//2)].set_xlabel('Frequency [Hz]')
             axs = axs.flatten()
             skipidx = len(self.contrasts) // len(axs)
 
@@ -727,8 +734,8 @@ class plotter:
 
             """
             fig, axs = plt.subplots(self.nrows, self.ncols, sharex=True, sharey='row')
-            axs[np.int(self.nrow//2), 0].set_ylabel('Power ' r'[$\frac{Hz^2}{Hz}$]') #adjusted for any size
-            axs[-1, np.int(self.ncol//2)].set_xlabel('Contrast [%]')
+            axs[np.int(self.nrows//2), 0].set_ylabel('Power ' r'[$\frac{Hz^2}{Hz}$]') #adjusted for any size
+            axs[-1, np.int(self.ncols//2)].set_xlabel('Contrast [%]')
             axs = axs.flatten()
     
             skipidx = len(self.frange[1:]) // len(axs)
@@ -920,8 +927,62 @@ class plotter:
                 ax.plot(self.fAMs, self.spkpercyc[:, skipidx*idx], 'k-')
                 ax.set_title(np.round(self.contrasts[skipidx*idx],3))
             return fig
+  
+    class misc:
+        """
+        Remaining plot functions
+        """
         
+        def plot_cv_bfr(noise_strengths, cvsavg, bfrsavg):
+            """
+            Plot coefficient of variation and average baseline firing rate as a function of noise strength with
+            running the model with zero stimulus.
 
+            Parameters
+            ----------
+            noise_strengths : 1-D array
+                Logarithmically sampled noise strength array.
+            cvsavg : 1-D array
+                Average coefficient of variation for the given noise strength.
+            bfrsavg : 1-D array
+                Average baseline firing rate for the given noise strength.
+
+            Returns
+            -------
+            None.
+
+            """
+            fig, axs = plt.subplots(1,2, sharex=True)
+            #noise strength - cv plot
+            axs[0].semilogx(noise_strengths, cvsavg, 'k.-')
+            #shade the area where cv is between 0.3 and 0.5
+            axs[0].axvspan(noise_strengths[cvsavg>=0.3][0], noise_strengths[cvsavg<=0.5][-1], alpha=0.5, color='k')
+            #add horizontal lines for cv between 0.3 and 0.5
+            axs[0].plot([np.min(noise_strengths),np.max(noise_strengths)], [0.3,0.3], 'k--')
+            axs[0].plot([np.min(noise_strengths),np.max(noise_strengths)], [0.5,0.5], 'k--')
+            #axis labeling
+            axs[0].set_xlabel('Noise strength')
+            axs[0].set_ylabel('CV')
+            axs[0].set_title('Coefficient of variation')
+            
+            #noise strength - baseline fr plot
+            axs[1].semilogx(noise_strengths, bfrsavg, 'k.-')
+            #shade the area where cv is between 0.3 and 0.5
+            axs[1].axvspan(noise_strengths[cvsavg>=0.3][0], noise_strengths[cvsavg<=0.5][-1], alpha=0.5, color='k')
+            #axis labeling
+            axs[1].set_ylabel('Firing rate [Hz]')
+            axs[1].set_xlabel('Noise strength')
+            axs[1].set_title('Average baseline firing rate')
+            #change the tick label formatting to scalar instead of powers of 10
+            for ax in axs:
+                #from https://stackoverflow.com/questions/21920233/matplotlib-log-scale-tick-label-number-formatting
+                ax.xaxis.set_major_formatter(ticker.FuncFormatter(lambda y,pos: ('{{:.{:1d}f}}'.format(int(np.maximum(-np.log10(y),0)))).format(y)))
+            plt.get_current_fig_manager().window.showMaximized()
+            plt.pause(0.5)
+            plt.tight_layout()
+            return
+            
+            
 class file_management:
     """
     Functions used to save and load simulation data and other files. 
